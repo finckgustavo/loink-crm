@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { BarChart2 } from 'lucide-react';
 import { useAuthContext } from '../contexts/AuthContext';
 import { SignInForm } from '../components/auth/SignInForm';
 import { SignUpForm } from '../components/auth/SignUpForm';
@@ -12,7 +13,7 @@ export function AuthPage() {
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
-            <i className="fa-solid fa-link text-white text-xl" />
+            <BarChart2 size={24} className="text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Loink</h1>
         </div>
