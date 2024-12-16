@@ -3,10 +3,10 @@ import { QueryClient } from '@tanstack/react-query';
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Aumentar o tempo de cache para 1 hora
+      // Aumentar tempo de cache
       staleTime: 1000 * 60 * 60, // 1 hora
       cacheTime: 1000 * 60 * 60 * 2, // 2 horas
-      // Manter dados antigos enquanto revalida
+      // Manter dados anteriores enquanto recarrega
       keepPreviousData: true,
       // Revalidar em certas condições
       refetchOnWindowFocus: true,
