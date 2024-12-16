@@ -10,14 +10,15 @@ export function useMetrics(dateRange: { startDate: string; endDate: string }) {
     queryKey: ['metrics', userId, dateRange],
     queryFn: () => fetchMetrics(dateRange.startDate, dateRange.endDate),
     enabled: !!userId,
-    staleTime: 1000 * 60 * 5, // Cache válido por 5 minutos
-    cacheTime: 1000 * 60 * 30, // Manter no cache por 30 minutos
+    staleTime: 1000 * 60 * 60, // 1 hora
+    cacheTime: 1000 * 60 * 60 * 2, // 2 horas
+    keepPreviousData: true,
+    retry: 3,
   });
 
   const addMutation = useMutation({
     mutationFn: addMetrics,
     onSuccess: () => {
-      // Invalida apenas as queries de métricas do usuário atual com o dateRange atual
       queryClient.invalidateQueries({ 
         queryKey: ['metrics', userId, dateRange]
       });
@@ -35,7 +36,8 @@ export function useMetrics(dateRange: { startDate: string; endDate: string }) {
 
   return {
     metrics: query.data ?? [],
-    isLoading: query.isLoading,
+    isLoading: query.isLoading && !query.isPreviousData,
+    isFetching: query.isFetching,
     error: query.error,
     addMetrics: addMutation.mutate,
     deleteMetrics: deleteMutation.mutate,

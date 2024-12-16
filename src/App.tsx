@@ -9,8 +9,8 @@ import { ProfilePage } from './pages/ProfilePage';
 import { Dashboard } from './components/Dashboard';
 import { MetricsList } from './pages/MetricsList';
 import { ChartsPage } from './pages/ChartsPage';
-import { TodoList } from './components/todos/TodoList';
-import { Calendar } from './components/calendar/Calendar';
+import { TodoListPage } from './pages/TodoList';
+import { CalendarPage } from './pages/Calendar';
 import { PrivateRoute } from './components/auth/PrivateRoute';
 import { AdminRoute } from './components/auth/AdminRoute';
 
@@ -20,23 +20,27 @@ export function App() {
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            {/* Rota pública */}
             <Route path="/auth" element={<AuthPage />} />
             
-            <Route element={<PrivateRoute />}>
+            {/* Rota raiz - redireciona para /auth se não autenticado */}
+            <Route path="/" element={<PrivateRoute />}>
               <Route element={<Layout />}>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/metrics" element={<MetricsList />} />
-                <Route path="/charts" element={<ChartsPage />} />
-                <Route path="/todos" element={<TodoList />} />
-                <Route path="/calendar" element={<Calendar />} />
-                <Route path="/profile" element={<ProfilePage />} />
+                <Route index element={<Dashboard />} />
+                <Route path="metrics" element={<MetricsList />} />
+                <Route path="charts" element={<ChartsPage />} />
+                <Route path="todos" element={<TodoListPage />} />
+                <Route path="calendar" element={<CalendarPage />} />
+                <Route path="profile" element={<ProfilePage />} />
                 
+                {/* Rota de admin */}
                 <Route element={<AdminRoute />}>
-                  <Route path="/admin" element={<AdminPage />} />
+                  <Route path="admin" element={<AdminPage />} />
                 </Route>
               </Route>
             </Route>
 
+            {/* Redireciona qualquer rota não encontrada para a raiz */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>

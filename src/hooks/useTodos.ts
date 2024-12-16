@@ -10,8 +10,10 @@ export function useTodos() {
     queryKey: ['todos', userId],
     queryFn: fetchTodos,
     enabled: !!userId,
-    staleTime: 1000 * 60 * 5, // Cache válido por 5 minutos
-    cacheTime: 1000 * 60 * 30, // Manter no cache por 30 minutos
+    staleTime: 1000 * 60 * 60, // 1 hora
+    cacheTime: 1000 * 60 * 60 * 2, // 2 horas
+    keepPreviousData: true,
+    retry: 3,
   });
 
   const addMutation = useMutation({
@@ -47,7 +49,8 @@ export function useTodos() {
 
   return {
     todos: query.data ?? [],
-    isLoading: query.isLoading,
+    isLoading: query.isLoading && !query.isPreviousData,
+    isFetching: query.isFetching,
     error: query.error,
     addTodo: addMutation.mutate,
     updateTodo: updateMutation.mutate,

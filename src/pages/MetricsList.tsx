@@ -6,6 +6,7 @@ import { DateFilter } from '../components/metrics/DateFilter';
 import { PlatformFilter } from '../components/metrics/PlatformFilter';
 import { MetricsForm } from '../components/metrics/MetricsForm';
 import { ConfirmationModal } from '../components/shared/ConfirmationModal';
+import { PageLoader } from '../components/shared/PageLoader';
 import { filterMetricsByPlatform } from '../utils/metrics';
 
 export function MetricsList() {
@@ -14,14 +15,10 @@ export function MetricsList() {
   const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
   const [metricToDelete, setMetricToDelete] = useState<string | null>(null);
   
-  const { metrics, isLoading, error, addMetrics, deleteMetrics, isDeleting } = useMetrics(dateRange);
+  const { metrics, isLoading, isFetching, error, addMetrics, deleteMetrics } = useMetrics(dateRange);
   const filteredMetrics = filterMetricsByPlatform(metrics, selectedPlatform);
 
-  const handleDelete = (id: string) => {
-    setMetricToDelete(id);
-  };
-
-  const confirmDelete = async () => {
+  const handleDelete = async () => {
     if (metricToDelete) {
       await deleteMetrics(metricToDelete);
       setMetricToDelete(null);
@@ -34,6 +31,10 @@ export function MetricsList() {
         <p className="text-red-500">Erro ao carregar métricas: {error.message}</p>
       </div>
     );
+  }
+
+  if (isLoading || isFetching) {
+    return <PageLoader message="Carregando métricas..." />;
   }
 
   return (
@@ -67,7 +68,7 @@ export function MetricsList() {
         <MetricsTable 
           data={filteredMetrics} 
           isLoading={isLoading} 
-          onDelete={handleDelete}
+          onDelete={(id) => setMetricToDelete(id)}
         />
       </div>
 
@@ -86,8 +87,7 @@ export function MetricsList() {
           title="Excluir Métrica"
           message="Tem certeza que deseja excluir esta métrica? Esta ação não pode ser desfeita."
           confirmLabel="Excluir"
-          isLoading={isDeleting}
-          onConfirm={confirmDelete}
+          onConfirm={handleDelete}
           onCancel={() => setMetricToDelete(null)}
         />
       )}

@@ -10,6 +10,10 @@ export function useEvents() {
     queryKey: ['events', userId],
     queryFn: fetchEvents,
     enabled: !!userId,
+    staleTime: 1000 * 60 * 60, // 1 hora
+    cacheTime: 1000 * 60 * 60 * 2, // 2 horas
+    keepPreviousData: true,
+    retry: 3,
   });
 
   const addMutation = useMutation({
@@ -34,7 +38,8 @@ export function useEvents() {
 
   return {
     events: query.data ?? [],
-    isLoading: query.isLoading,
+    isLoading: query.isLoading && !query.isPreviousData,
+    isFetching: query.isFetching,
     error: query.error,
     addEvent: addMutation.mutate,
     deleteEvent: deleteMutation.mutate,
