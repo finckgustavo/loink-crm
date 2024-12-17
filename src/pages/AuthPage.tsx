@@ -3,7 +3,6 @@ import { BarChart2 } from 'lucide-react';
 import { useAuthContext } from '../contexts/AuthContext';
 import { SignInForm } from '../components/auth/SignInForm';
 import { SignUpForm } from '../components/auth/SignUpForm';
-import { AUTH_ILLUSTRATIONS } from '../constants/images';
 
 export function AuthPage() {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -63,12 +62,15 @@ export function AuthPage() {
         </div>
       </div>
 
-      {/* Coluna da ilustração */}
-      <div className="hidden lg:block flex-1 bg-gray-50 p-12">
-        <img
-          src={isSignIn ? AUTH_ILLUSTRATIONS.login : AUTH_ILLUSTRATIONS.signup}
-          alt="Ilustração"
-          className="w-full h-full object-contain"
+      {/* Coluna da animação */}
+      <div className="hidden lg:flex flex-1 bg-gray-50 items-center justify-center">
+        <dotlottie-player
+          src="https://lottie.host/902b8e5d-43b4-4065-903c-b8f801cd05a9/42rgzTCfYz.lottie"
+          background="transparent"
+          speed="1"
+          style={{ width: '500px', height: '500px' }}
+          loop
+          autoplay
         />
       </div>
     </div>
