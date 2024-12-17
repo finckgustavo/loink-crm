@@ -1,40 +1,50 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getCurrentUser, signIn, signUp, signOut } from '../services/auth';
 import type { SignInData, SignUpData } from '../types/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export function useAuth() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { data: user, isLoading } = useQuery({
     queryKey: ['user'],
     queryFn: getCurrentUser,
-    staleTime: 1000 * 60 * 5, // 5 minutos
-    cacheTime: 1000 * 60 * 30, // 30 minutos
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 
   const signInMutation = useMutation({
     mutationFn: signIn,
-    onSuccess: async (user) => {
-      await queryClient.invalidateQueries({ queryKey: ['user'] });
-      navigate('/');
+    onSuccess: (user) => {
+      // Set user data immediately
+      queryClient.setQueryData(['user'], user);
+      
+      // Navigate to dashboard or intended page
+      const intendedPath = location.state?.from?.pathname || '/dashboard';
+      navigate(intendedPath, { replace: true });
     },
+    onError: (error) => {
+      console.error('Login error:', error);
+    }
   });
 
   const signUpMutation = useMutation({
     mutationFn: signUp,
-    onSuccess: async (user) => {
-      await queryClient.invalidateQueries({ queryKey: ['user'] });
-      navigate('/');
+    onSuccess: () => {
+      navigate('/auth', { replace: true });
     },
   });
 
   const signOutMutation = useMutation({
     mutationFn: signOut,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['user'] });
-      navigate('/auth');
+    onSuccess: () => {
+      // Clear all queries
+      queryClient.clear();
+      // Redirect to login
+      navigate('/auth', { replace: true });
     },
   });
 

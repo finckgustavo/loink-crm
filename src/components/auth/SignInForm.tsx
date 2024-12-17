@@ -36,6 +36,7 @@ export function SignInForm({ onSubmit, error, isLoading }: Props) {
         <label className="block text-sm font-medium text-gray-700">E-mail</label>
         <input
           type="email"
+          placeholder="exemplo@email.com"
           {...register('email')}
           className="mt-1 block w-full rounded-lg bg-gray-50 px-4 py-2.5 border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
         />
@@ -49,6 +50,7 @@ export function SignInForm({ onSubmit, error, isLoading }: Props) {
         <div className="relative">
           <input
             type={showPassword ? 'text' : 'password'}
+            placeholder="••••••••"
             {...register('password')}
             className="mt-1 block w-full rounded-lg bg-gray-50 px-4 py-2.5 border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />

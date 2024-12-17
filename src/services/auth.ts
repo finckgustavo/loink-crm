@@ -1,5 +1,5 @@
 import { supabase, setUserSession, clearUserSession } from '../lib/supabase';
-import type { SignUpData, SignInData, User } from '../types/auth';
+import type { SignInData, SignUpData, User } from '../types/auth';
 
 export async function getCurrentUser(): Promise<User | null> {
   try {
@@ -13,20 +13,24 @@ export async function getCurrentUser(): Promise<User | null> {
       .single();
 
     if (error) {
-      sessionStorage.removeItem('userId');
+      await clearUserSession();
       return null;
     }
 
     return data;
   } catch (error) {
-    console.error('Erro ao buscar usuário atual:', error);
-    sessionStorage.removeItem('userId');
+    console.error('Error getting current user:', error);
+    await clearUserSession();
     return null;
   }
 }
 
-export async function signIn({ email, password }: SignInData) {
+export async function signIn({ email, password }: SignInData): Promise<User> {
   try {
+    // Clear any existing session
+    await clearUserSession();
+
+    // Attempt to sign in
     const { data: user, error } = await supabase
       .from('users')
       .select('*')
@@ -42,20 +46,24 @@ export async function signIn({ email, password }: SignInData) {
       throw new Error('Sua conta ainda não foi aprovada pelo administrador');
     }
 
-    // Configurar sessão
+    // Set session
     sessionStorage.setItem('userId', user.id);
     await setUserSession(user.id);
 
     return user;
   } catch (error) {
-    console.error('Erro ao fazer login:', error);
+    console.error('Error signing in:', error);
     throw error;
   }
 }
 
+export async function signOut() {
+  await clearUserSession();
+}
+
 export async function signUp({ email, password, full_name }: SignUpData) {
   try {
-    // Verificar se o email já existe
+    // Check if email exists
     const { data: existingUser } = await supabase
       .from('users')
       .select('id')
@@ -66,7 +74,7 @@ export async function signUp({ email, password, full_name }: SignUpData) {
       throw new Error('Este e-mail já está em uso');
     }
 
-    // Criar novo usuário
+    // Create new user
     const { data, error } = await supabase
       .from('users')
       .insert([
@@ -84,39 +92,7 @@ export async function signUp({ email, password, full_name }: SignUpData) {
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Erro ao criar usuário:', error);
+    console.error('Error signing up:', error);
     throw error;
   }
-}
-
-export async function signOut() {
-  try {
-    sessionStorage.removeItem('userId');
-    await clearUserSession();
-  } catch (error) {
-    console.error('Erro ao fazer logout:', error);
-    throw error;
-  }
-}
-
-export async function getAllUsers() {
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) throw error;
-  return data;
-}
-
-export async function approveUser(userId: string, approved: boolean) {
-  const { data, error } = await supabase
-    .from('users')
-    .update({ approved })
-    .eq('id', userId)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
 }

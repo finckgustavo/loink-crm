@@ -20,28 +20,31 @@ export function App() {
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            {/* Rota pública */}
+            {/* Root redirect */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            
+            {/* Auth route */}
             <Route path="/auth" element={<AuthPage />} />
             
-            {/* Rota raiz - redireciona para /auth se não autenticado */}
-            <Route path="/" element={<PrivateRoute />}>
+            {/* Protected routes */}
+            <Route element={<PrivateRoute />}>
               <Route element={<Layout />}>
-                <Route index element={<Dashboard />} />
-                <Route path="metrics" element={<MetricsList />} />
-                <Route path="charts" element={<ChartsPage />} />
-                <Route path="todos" element={<TodoListPage />} />
-                <Route path="calendar" element={<CalendarPage />} />
-                <Route path="profile" element={<ProfilePage />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/metrics" element={<MetricsList />} />
+                <Route path="/charts" element={<ChartsPage />} />
+                <Route path="/todos" element={<TodoListPage />} />
+                <Route path="/calendar" element={<CalendarPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
                 
-                {/* Rota de admin */}
+                {/* Admin route */}
                 <Route element={<AdminRoute />}>
-                  <Route path="admin" element={<AdminPage />} />
+                  <Route path="/admin" element={<AdminPage />} />
                 </Route>
               </Route>
             </Route>
 
-            {/* Redireciona qualquer rota não encontrada para a raiz */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            {/* Catch all redirect */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
