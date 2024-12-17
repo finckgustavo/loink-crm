@@ -46,6 +46,17 @@ export function Sidebar() {
 
   const items = isAdmin ? [...menuItems, ...adminItems] : menuItems;
 
+  // Função para formatar o nome do usuário
+  const formatDisplayName = (fullName: string) => {
+    const names = fullName.split(' ');
+    if (names.length >= 2) {
+      return `${names[0].charAt(0).toUpperCase() + names[0].slice(1).toLowerCase()} ${
+        names[1].charAt(0).toUpperCase() + names[1].slice(1).toLowerCase()
+      }`;
+    }
+    return names[0].charAt(0).toUpperCase() + names[0].slice(1).toLowerCase();
+  };
+
   return (
     <div
       className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-30 transition-[width] duration-300 ease-in-out ${
@@ -109,14 +120,15 @@ export function Sidebar() {
             <div className={`transition-opacity duration-300 ${
               isHovered ? 'opacity-100' : 'opacity-0'
             }`}>
-              <p className="text-sm font-medium text-gray-900 whitespace-nowrap">{user?.full_name}</p>
-              <p className="text-xs text-gray-500 whitespace-nowrap">{user?.email}</p>
+              <p className="text-sm font-medium text-gray-900 whitespace-nowrap">
+                {user ? formatDisplayName(user.full_name) : ''}
+              </p>
             </div>
           </Link>
           {isHovered && (
             <button
               onClick={() => signOut()}
-              className="w-full px-4 py-2 text-sm text-red-600 font-medium hover:bg-red-50 rounded-lg transition-colors"
+              className="w-full px-4 py-2 text-sm text-red-600 font-medium bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
             >
               Sair
             </button>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMetrics } from '../hooks/useMetrics';
 import { useAuthContext } from '../contexts/AuthContext';
+import { useQueryClient } from '@tanstack/react-query';
 import { MetricsOverview } from './metrics/MetricsOverview';
 import { MetricsCharts } from './metrics/MetricsCharts';
 import { MetricsTable } from './metrics/MetricsTable';
@@ -9,13 +10,16 @@ import { DateFilter } from './metrics/DateFilter';
 import { PlatformFilter } from './metrics/PlatformFilter';
 import { ImportantTasks } from './todos/ImportantTasks';
 import { LoadingOverlay } from './LoadingOverlay';
+import { RefreshButton } from './shared/RefreshButton';
 import { filterMetricsByPlatform } from '../utils/metrics';
 
 export function Dashboard() {
   const { user } = useAuthContext();
   const [selectedPlatform, setSelectedPlatform] = useState('all');
   const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
+  const queryClient = useQueryClient();
   const { metrics, isLoading, error } = useMetrics(dateRange);
   const filteredMetrics = filterMetricsByPlatform(metrics, selectedPlatform);
   const recentMetrics = filteredMetrics.slice(0, 7);
@@ -26,6 +30,22 @@ export function Dashboard() {
   // Check if we're viewing today's metrics
   const today = new Date().toISOString().split('T')[0];
   const isViewingToday = dateRange.startDate === today && dateRange.endDate === today;
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([
+        queryClient.invalidateQueries({ 
+          queryKey: ['metrics', sessionStorage.getItem('userId'), dateRange] 
+        }),
+        queryClient.invalidateQueries({ 
+          queryKey: ['todos', sessionStorage.getItem('userId')] 
+        })
+      ]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   if (error) {
     return (
@@ -41,7 +61,13 @@ export function Dashboard() {
       
       <div className="p-8 w-full max-w-full">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Olá {firstName} 👋🏼</h1>
+          <h1 className="text-2xl text-gray-900">
+            Olá, <span className="font-bold">{firstName}</span> 👋🏼
+          </h1>
+          <RefreshButton 
+            onClick={handleRefresh}
+            isLoading={isRefreshing}
+          />
         </div>
 
         <div className="flex justify-between items-center mb-8">

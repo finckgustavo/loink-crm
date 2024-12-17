@@ -7,16 +7,31 @@ import { PlatformFilter } from '../components/metrics/PlatformFilter';
 import { MetricsForm } from '../components/metrics/MetricsForm';
 import { ConfirmationModal } from '../components/shared/ConfirmationModal';
 import { PageLoader } from '../components/shared/PageLoader';
+import { RefreshButton } from '../components/shared/RefreshButton';
 import { filterMetricsByPlatform } from '../utils/metrics';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function MetricsList() {
   const [showForm, setShowForm] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState('all');
   const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
   const [metricToDelete, setMetricToDelete] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
+  const queryClient = useQueryClient();
   const { metrics, isLoading, isFetching, error, addMetrics, deleteMetrics } = useMetrics(dateRange);
   const filteredMetrics = filterMetricsByPlatform(metrics, selectedPlatform);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await queryClient.invalidateQueries({ 
+        queryKey: ['metrics', sessionStorage.getItem('userId'), dateRange] 
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (metricToDelete) {
@@ -42,13 +57,19 @@ export function MetricsList() {
       <div className="mb-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Lista de Dados</h1>
-          <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus size={20} />
-            Adicionar Métricas
-          </button>
+          <div className="flex items-center gap-2">
+            <RefreshButton 
+              onClick={handleRefresh}
+              isLoading={isRefreshing}
+            />
+            <button
+              onClick={() => setShowForm(true)}
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Plus size={20} />
+              Adicionar Métricas
+            </button>
+          </div>
         </div>
         
         <div className="flex justify-between items-center">

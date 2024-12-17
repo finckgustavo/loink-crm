@@ -12,12 +12,10 @@ import {
 import { useEvents } from '../../hooks/useEvents';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarGrid } from './CalendarGrid';
-import { EventModal } from './EventModal';
 import { DayEventsModal } from './DayEventsModal';
 
 export function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [showEventModal, setShowEventModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showDayEvents, setShowDayEvents] = useState(false);
   const { events, isLoading } = useEvents();
@@ -57,15 +55,11 @@ export function Calendar() {
   }
 
   return (
-    <div className="p-8">
+    <div>
       <CalendarHeader
         currentDate={currentDate}
         onPreviousMonth={previousMonth}
         onNextMonth={nextMonth}
-        onAddEvent={() => {
-          setSelectedDate(new Date());
-          setShowEventModal(true);
-        }}
       />
 
       <div className="bg-white rounded-lg shadow">
@@ -81,16 +75,6 @@ export function Calendar() {
           />
         </div>
       </div>
-
-      {showEventModal && (
-        <EventModal
-          selectedDate={selectedDate}
-          onClose={() => {
-            setShowEventModal(false);
-            setSelectedDate(null);
-          }}
-        />
-      )}
 
       {showDayEvents && selectedDate && (
         <DayEventsModal
